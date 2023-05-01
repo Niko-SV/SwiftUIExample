@@ -1,0 +1,27 @@
+//
+//  TabBarHiddingView.swift
+//  OnlineShop
+//
+//  Created by NikoS on 13.09.2022.
+//
+
+import SwiftUI
+
+struct TabBarHiddingView: View {
+    @ObservedObject var viewModel: TabBarHiddingViewModel
+<<<<<<< HEAD
+    @Binding var tabBarIsHidden: Bool
+=======
+    @State var tabBarIsHidden: Bool = false
+>>>>>>> feature/SU-4338-Double-tap-to-favorites
+    
+    var body: some View {
+        GeometryReader { proxy -> Color in
+            viewModel.handleScroll(proxy: proxy) {
+                tabBarIsHidden = $0
+            }
+            return Color.clear
+        }
+        .preference(key: HideTabBarKey.self, value: .init(value: tabBarIsHidden))
+    }
+}

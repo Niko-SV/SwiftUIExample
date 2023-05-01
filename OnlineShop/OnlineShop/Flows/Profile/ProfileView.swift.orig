@@ -1,0 +1,118 @@
+//
+//  ProfileView.swift
+//  OnlineShop
+//
+//  Created by NikoS on 07.09.2022.
+//
+
+import SwiftUI
+
+struct ProfileView: View {
+    @ObservedObject var userSettings = UserSettings()
+    @State private var userEmail: String = ""
+    @State var isTabBarAvailable = true
+    @ObservedObject var viewModel = ProfileViewModel()
+    
+    var body: some View {
+        NavigationView {
+            ScrollViewReader { proxy in
+                VStack(spacing: 25) {
+                    profileImage
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 20) {
+                            textField(text: "First Name", proxy: proxy, id: 1) {
+                                TextField(
+                                    "Please enter here", text: $userSettings.username
+                                )
+                            }
+                            textField(text: "Second Name", proxy: proxy, id: 2) {
+                                TextField(
+                                    "Please enter here", text: $userSettings.secondname
+                                )
+                            }
+                            textField(text: "User's e-mail", proxy: proxy, id: 3) {
+                                Text("SomeEmail@Gmail.com")
+                            }
+                            textField(text: "Country", proxy: proxy, id: 4) {
+                                TextField(
+                                    "Please enter here", text: $userSettings.country
+                                )
+                            }
+                            navigationRow(imageName: "heart.fill", text: "Favorites", navigationTo: FavoritesView(items: viewModel.favoriteItems()))
+                            navigationRow(imageName: "doc.plaintext", text: "Coupons", navigationTo: CouponsView())
+                        }
+                    }
+                    .modifier(TabBarOverlay())
+                }
+            }
+            .onAppear {
+                isTabBarAvailable = true
+            }
+            .coordinateSpace(name: AppConstants.coordinateSpaceName)
+            .preference(key: IsTabBarAvailableKey.self, value: isTabBarAvailable)
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    private func navigationRow(imageName: String, text: String, navigationTo: some View) -> some View {
+        return NavigationLink(destination: navigationTo
+            .onAppear { isTabBarAvailable = false },
+                       label : {
+            HStack {
+                Image(systemName: imageName)
+                Text(text)
+                    .font(.system(size: 20))
+                Spacer()
+                Image(systemName: "chevron.right")
+            }
+            .foregroundColor(.black)
+            .padding([.leading, .trailing])
+        })
+    }
+    
+    private var profileImage: some View {
+        Image(systemName: "person")
+            .resizable()
+            .frame(width: 100, height: 100)
+            .foregroundColor(.white)
+            .padding(20)
+            .background(Color.gray)
+            .clipShape(Circle())
+    }
+    
+    @ViewBuilder private func textField(text: String, proxy: ScrollViewProxy, id: Int, content: () -> some View) -> some View {
+        HStack {
+            Text(text)
+                .textSize()
+                .padding(.leading)
+            Spacer()
+            content()
+                .textSize()
+                .padding(.trailing)
+                .fixedSize()
+        }
+        .onTapGesture {
+            proxy.scrollTo(id, anchor: .center)
+        }
+        .id(id)
+        .onSubmit({
+        })
+    }
+}
+
+
+
+fileprivate extension View {
+    func textSize() -> some View {
+        font(.system(size: 20))
+    }
+}
+
+struct ProfileView_Previews: PreviewProvider {
+    static var previews: some View {
+        ProfileView()
+    }
+}
+
+

@@ -1,0 +1,39 @@
+//
+//  FavoritesView.swift
+//  OnlineShop
+//
+//  Created by NikoS on 19.09.2022.
+//
+
+import SwiftUI
+
+struct FavoritesView: View {
+    var items: [ItemViewModel]
+    
+    var body: some View {
+<<<<<<< HEAD
+        List {
+            ForEach(items, id: \.model.id) { item in
+                NavigationLink(destination: DetailsView(itemViewModel: item), label : {
+                    ItemView(viewModel: item)
+                        .listRowSeparator(.hidden)
+                })
+            }
+=======
+        NavigationView {
+            List(items, id: \.model.id) { item in
+                ItemView(viewModel: item)
+            }
+            .navigationTitle("Favorites")
+            .navigationBarTitleDisplayMode(.inline)
+>>>>>>> feature/SU-4338-Double-tap-to-favorites
+        }
+        .listStyle(.plain)
+    }
+}
+
+struct FavoritesView_Previews: PreviewProvider {
+    static var previews: some View {
+        FavoritesView(items: [ItemViewModel]())
+    }
+}

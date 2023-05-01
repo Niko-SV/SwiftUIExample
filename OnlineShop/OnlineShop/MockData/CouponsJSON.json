@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Welcome discount 10%",
+        "code": "XAHSG-43212",
+        "value": 10.00
+    },
+    {
+        "name": "Monthly bonus 5%",
+        "code": "AICJD-05638",
+        "value": 5.00
+    },
+    {
+        "name": "Mighty 20%",
+        "code": "MIGHT-10101",
+        "value": 20.00
+    }
+]

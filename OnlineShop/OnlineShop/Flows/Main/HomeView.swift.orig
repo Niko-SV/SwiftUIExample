@@ -1,0 +1,183 @@
+//
+//  MainView.swift
+//  OnlineShop
+//
+//  Created by NikoS on 07.09.2022.
+//
+
+import SwiftUI
+
+
+struct HomeView: View {
+
+    @ObservedObject var viewModel: CategoryViewModel
+    @State private var searchQuery = ""
+    @State var isSearchActive = false
+<<<<<<< HEAD
+    @ObservedObject private var addingToFavorites = AlertControl()
+    @ObservedObject private var deleteFromFavorites = AlertControl()
+=======
+    @State var isTabBarAvailable = true
+    @State private var addingToFavoritesAlert = false
+>>>>>>> feature/SU-4338-Double-tap-to-favorites
+    
+    var body: some View {
+        ZStack {
+            NavigationView {
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        ForEach(viewModel.categories, id: \.name) { category in
+                            let bottomPadding: CGFloat = (category.name == DataStorage.shared.categories.last?.name) ? AppConstants.tabBarHeight + 20 : 0
+                            categoryView(category: category)
+                                .padding(.bottom, bottomPadding)
+                        }
+                    }
+<<<<<<< HEAD
+                    .overlay(
+                        TabBarHiddingView(viewModel: htbViewModel,
+                                          tabBarIsHidden: $hideBar
+                                         )
+                    )
+=======
+                    .modifier(TabBarOverlay())
+>>>>>>> feature/SU-4338-Double-tap-to-favorites
+                }
+                .background(
+                    NavigationLink(destination: SearchResultsView(items: filteredItems())
+                        .onAppear { isTabBarAvailable = false },
+                                   isActive: $isSearchActive ) { EmptyView() }
+                        .hidden()
+                )
+                .padding([.top, .leading, .trailing])
+                .onAppear {
+                    isTabBarAvailable = true
+                }
+                .searchable(text: $searchQuery)
+                .onSubmit(of: .search) {
+                    self.isSearchActive = true
+                }
+                .coordinateSpace(name: AppConstants.coordinateSpaceName)
+                .navigationTitle("Welcome to \(AppConstants.shopName)")
+                .navigationBarTitleDisplayMode(.inline)
+                .preference(key: IsTabBarAvailableKey.self, value: isTabBarAvailable)
+            }
+            AlertView(alertText: "Game was added to favorites", imageName: "heart.fill", isVisible: addingToFavorites.isVisible)
+            AlertView(alertText: "Game was deleted from favorites", imageName: "heart.fill", isVisible: deleteFromFavorites.isVisible)
+        }
+        
+    }
+    
+<<<<<<< HEAD
+    var searchResultView: some View {
+        SearchResultsView(items: filteredItems())
+            .onAppear { setTabBarAvailability(false) }
+    }
+    
+=======
+    var showAlert: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .foregroundColor(Color.gray)
+            .frame(width: 200, height: 200)
+            .overlay(
+                VStack {
+                    Image(systemName: "heart.fill")
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                    Text("Game was added to favorites").font(.title2)
+                        .multilineTextAlignment(.center)
+                }
+            )
+    }
+
+>>>>>>> feature/SU-4338-Double-tap-to-favorites
+    func filteredItems() -> [ItemViewModel] {
+        guard !searchQuery.isEmpty else { return [] }
+        let items = viewModel.categories.flatMap { $0.items }
+        let filteredItems = items.filter { $0.title.contains(searchQuery) }
+        return filteredItems.map { ItemViewModel(model: $0, layout: .horizontal) }
+    }
+    
+    @ViewBuilder
+    func firstCategoryRow(category: GameCategory) -> some View {
+        if category.name == DataStorage.shared.categories.first?.name {
+            VStack(alignment: .leading) {
+                NavigationLink {
+                    let items = DataStorage.shared.getAllInBasket()
+                    let inBasketItems = items.map { ItemViewModel(model: $0, layout: .horizontal) }
+                    BasketView(items: inBasketItems) } label: {
+                        Spacer()
+                        Image(systemName: "cart.fill")
+                    }
+                    .foregroundColor(.gray)
+                    .font(.system(size: 20))
+                    .padding(.horizontal, 5)
+                Text("Category: \(category.name)")
+                    .font(.title)
+                    .foregroundColor(.black)
+            }
+        } else {
+            Text("Category: \(category.name)")
+        }
+    }
+    
+    func categoryView(category: GameCategory) -> some View {
+        VStack(alignment: .leading) {
+            firstCategoryRow(category: category)
+                .font(.title)
+                .foregroundColor(.black)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack() {
+                    ForEach(category.items, id: \.id) { game in
+                        NavigationLink(destination: DetailsView(itemViewModel: ItemViewModel(model: game, layout: .horizontal))
+                            .onAppear { isTabBarAvailable = false }, label : {
+                                ItemView(viewModel: ItemViewModel(model: game, layout: .vertical))
+                            })
+                        .highPriorityGesture(
+                            TapGesture(count: 2)
+                                .onEnded({
+                                    if !game.isFavorite {
+                                        addingToFavorites.show()
+                                    } else {
+                                        deleteFromFavorites.show()
+                                    }
+                                    game.isFavorite.toggle()
+                                })
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    func itemView(imageName: String, itemTitle: String, price: String) -> some View {
+        VStack(alignment: .leading) {
+            Image(imageName)
+                .resizable()
+                .frame(width: 150, height: 150)
+            Text(itemTitle + "\n")
+                .foregroundColor(.primary)
+                .font(.title3)
+                .multilineTextAlignment(.leading)
+                .frame(width: 150, alignment: .leading)
+                .lineLimit(2)
+                .fixedSize()
+            HStack {
+                Text(NumberFormatter.format(price))
+                    .font(.title2)
+                    .foregroundColor(.primary)
+                    .fixedSize()
+                VStack{
+                    Divider().background(.black)
+                }
+            }
+            Spacer()
+        }
+    }
+}
+
+struct MainView_Previews: PreviewProvider {
+    @State static var isTabBarAvailable = false
+    static var previews: some View {
+        HomeView(viewModel: CategoryViewModel())
+    }
+}
